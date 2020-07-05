@@ -1,0 +1,27 @@
+{
+  "name": "metaproc-sqlite",
+  "version": "1.0.0",
+  "description": "Implements CRUD operations for node-sqlite3 using metaproc-js",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node ./test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mastergray/metaproc-sqlite.git"
+  },
+  "author": "mastergray",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mastergray/metaproc-sqlite/issues"
+  },
+  "homepage": "https://github.com/mastergray/metaproc-sqlite#readme",
+  "dependencies": {
+    "common-fn-js": "^1.1.0",
+    "metaproc": "^4.0.0",
+    "sqlite3": "^5.0.0"
+  }
+}

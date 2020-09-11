@@ -1,6 +1,6 @@
 {
   "name": "metaproc-sqlite",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Implements CRUD operations for node-sqlite3 using metaproc-js",
   "main": "index.js",
   "directories": {

@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const METAPROC = require('metaproc');
 const UTIL = require('common-fn-js');
 
@@ -143,25 +143,23 @@ module.exports = SQLITE = (STATE) => METAPROC.Standard(STATE)
 
     // close :: (VOID) -> METAPROC
     // Closes DB connection:
-    .augment("close", () => metaproc => {
+    .augment("close", (fn) => metaproc => {
       return metaproc.ap(STATE => new Promise((resolve, reject) => {
         STATE.DB.close(closeErr => {
           if (closeErr) reject(closeErr);
+            if (fn !== undefined) {
+              fn(STATE.CURSOR, STATE);
+            }
           resolve(STATE);
         });
       }))
     })
 
-    // fail :: (VOID) -> METAPROC
-    // Overrides "fail" to ensure DB connection is closed when exception is thrown:
-    .augment("fail", (fn) => metaproc => {
-      let fail = (err) => {
-        err.STATE.DB.close(closeErr => {
-          fn === undefined ? console.log(err) : fn(err)
-        })
-      }
-      return metaproc.lift((STATE, OPS) => METAPROC.of(STATE.catch(fail), OPS))
-    })
+    // Applies function to CURSOR, return promise of result:
+    // NOTE: This method returns PROMISE:
+    .augment("lift_CURSOR", (fn) => metaproc => metaproc.lift(STATE=>STATE.then(state=> {
+      return fn(state.CURSOR, STATE);
+    })))
 
 /**
  *
@@ -181,7 +179,6 @@ module.exports = SQLITE = (STATE) => METAPROC.Standard(STATE)
      "CURSOR":[]    // Where database operation results are stored
    });
  }))
-
 
  // :: (DATABASE, STRING) -> PROMISE([ROW])
  // Return promise of rows for given DB and query:
@@ -306,3 +303,10 @@ SQLITE.GET_LAST_ID = (STATE) => STATE.CURSOR.lastID
 // NOTE: This is ready from the value in STATE, not the PROMISE of STATE:
 // Convenience method for storing last ID from CURSOR in STATE:
 SQLITE.SET_LAST_ID = (PROPERTY, STATE) => STATE.CURSOR.lastID
+
+// Temporary fail method until error handling can be improved:
+SQLITE.ONFAIL = (fn) => (err) => {
+  err.STATE.DB.close(closeErr => {
+    fn === undefined ? console.log(err) : fn(err)
+  })
+}
